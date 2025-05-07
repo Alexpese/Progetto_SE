@@ -11,10 +11,10 @@ Per cambiare nota (e quindi corda) si possono usare i due pulsanti (uno per "sce
 L'accordatore ha incorporato un metronomo che, in base al tempo scelto (tempo di base 60BPM), emette un suono (in questo caso la nota DO) ad ogni battere di una partitura (se inserito il tempo corretto (NON viene effettuato nessun controllo sul tempo, è a discrezione dell'utente)
 
 <h2>Componenti</h2>
-- Microfono (Max9814 o Max4466)<br>
-- Display LCD (TC1602A-1T)<br>
-- Altoparlante (Passive Buzzer)<br>
-- Pulsanti (x2)<br>
+- Microfono (Max9814 o Max4466): Usato per la rilevazione dell'accordatura dello strumento<br>
+- Display LCD (TC1602A-1T): Usato per l'interazione con l'utente, mostra (stampato a video) la corda che si sta accordando (e la nota corrispondente)<br>
+- Altoparlante (Passive Buzzer): Usato per la riproduzione nella nota corrente a cui si sta effettuando la comparazione (durante l'accordatura) e per riprodurre il battito del metronomo<br>
+- Pulsanti (x3)<br>
 - Led (2 rossi e 1 verde)<br>
--Arduino Mega R3 (Scelto per la necessità di avere più pin di un Aruino Uno)<br>
--Membrane Switch<br>
+- Arduino Mega R3 (Scelto per la necessità di avere più pin di un Aruino Uno)<br>
+- Membrane Switch: Usato per la scelta del tempo del metronomo<br>

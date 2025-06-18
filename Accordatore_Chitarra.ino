@@ -144,4 +144,5 @@ void checkNote(double freq, const char* noteName, double targetFreq) {
 /*
   1-Aggiungere la parte del metronomo
   2-Aggregare il tutto in modo da poter switchare tra le modalità
+  
 */

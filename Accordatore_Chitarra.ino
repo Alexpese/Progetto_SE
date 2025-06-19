@@ -38,8 +38,8 @@ unsigned long lastBeat = 0; // Tempo dell'ultimo beep
 
 volatile int mod = 0;
 
-Bounce debouncer = Bounce(); // crea un oggetto Bounce
-Bounce d2 = Bounce();
+Bounce debouncer = Bounce(); //Crea un oggetto Bounce, per usare il debouncer
+Bounce d2 = Bounce();   //Altro debouncer
 
 struct Nota {
   char* nome;
@@ -55,32 +55,32 @@ const Nota accStandard[] = {
   {"E4", 360.00}
 };
 
+//Funzione ISR per gestire l'interrupt del cambio di modalità
 void changeState() {
   mod = (mod + 1) % 2;
 }
 
 void setup() {
-  Serial.begin(115200);
-
   samplingPeriodUs = round(1000000.0 / samplingFrequency);
 
+  //Inizializzazione dei pin
   pinMode(micPin,INPUT);
   pinMode(ledA, OUTPUT);
   pinMode(ledB, OUTPUT);
   pinMode(ledG, OUTPUT);
   pinMode(butN, INPUT);
 
-  debouncer.attach(butN);       // collega il pulsante al debouncer
-  debouncer.interval(10);      // imposta l'intervallo di debounce (in ms)
+  debouncer.attach(butN);   // collega il pulsante al debouncer
+  debouncer.interval(10);   // imposta l'intervallo di debounce (in ms)
 
-  d2.attach(bMod);
-  d2.interval(10);
+  d2.attach(bMod);   //Collegamento del secondo bottone al debouncer
+  d2.interval(10);   //Intervallo di debounce
 
-  attachInterrupt(digitalPinToInterrupt(bMod), changeState, RISING);
+  attachInterrupt(digitalPinToInterrupt(bMod), changeState, RISING);   //Interrupt usato per il cambio di modalità
 
-  lcd.begin(16, 2);
+  lcd.begin(16, 2);   //Inizializzazione dello schermo LCD
   lcd.print("Nota Selezionata");
-  lcd.setCursor(0, 1);
+  lcd.setCursor(0, 1);    //Spostamento del cursore all'inizio della seconda riga
   lcd.print("E2              ");
 
 }
@@ -146,6 +146,7 @@ void Accord() {
   }
 }
 
+//Controllo del cambio di nota e eventuale aggiornamento del testo scritto sullo schermo LCD
 void checkButton() {
   if (debouncer.rose()) {
     lcd.clear();
@@ -180,7 +181,7 @@ void Metronome() {
       i++;
     }
     if (i == 3) {
-      tempo = tdc[0] * 100 + tdc[1] * 10 + tdc[2];
+      tempo = tdc[0] * 100 + tdc[1] * 10 + tdc[2];  //Calcolo del tempo (BPM), da array di caratteri a intero
       lcd.clear();
       lcd.print("Tempo:");
       lcd.setCursor(0,1);

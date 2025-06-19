@@ -1,4 +1,8 @@
 #include <Bounce2.h>
+#include <LiquidCrystal.h>
+
+// LiquidCrystal(rs, e, d4, d5, d6, d7)
+LiquidCrystal lcd(32, 30, 28, 26, 24, 22);
 
 const int micPin = A0;
 const int samples = 512;
@@ -36,7 +40,12 @@ void setup() {
   pinMode(ledG, OUTPUT);
   pinMode(butN, INPUT);
   debouncer.attach(butN);       // collega il pulsante al debouncer
-  debouncer.interval(25);      // imposta l'intervallo di debounce (in ms)
+  debouncer.interval(1);      // imposta l'intervallo di debounce (in ms)
+  lcd.begin(16, 2);
+  lcd.print("Nota Selezionata");
+  lcd.setCursor(0, 1);
+  lcd.print("E2              ");
+
 }
 
 void loop() {
@@ -62,7 +71,7 @@ void loop() {
   // 2. Controllo energia
   const long energyThreshold = 50000;
   if (energy < energyThreshold) {
-    Serial.println("Segnale troppo debole, ignorato");
+    //Serial.println("Segnale troppo debole, ignorato");
     return;
   }
 
@@ -86,23 +95,19 @@ void loop() {
   if (bestLag > 0) {
     double freq = samplingFrequency / bestLag;
 
-    if (freq < 70 || freq > 400) {
-      Serial.print("Frequenza fuori range: ");
-      Serial.print(freq, 2);
-      Serial.println(" Hz");
-    } else {
+    if (freq > 70 && freq < 400) {
       checkNote(freq, accStandard[targetNote].nome, accStandard[targetNote].frequenza);
     }
-  } else {
-    Serial.println("Nessuna frequenza rilevata");
   }
 }
 
 void checkButton() {
   if (debouncer.rose()) {
     targetNote = (targetNote + 1) % 6;
-    Serial.print("Nota selezionata: ");
-    Serial.println(accStandard[targetNote].nome);
+    lcd.print("Nota Selezionata");
+    lcd.setCursor(0,1);
+    lcd.print(accStandard[targetNote].nome);
+    lcd.print("              ");
   }
 }
 
@@ -112,37 +117,27 @@ void checkNote(double freq, const char* noteName, double targetFreq) {
   const double toleranceBelow = 8.0;   // tolleranza sotto
   const double toleranceAbove = 10.0;  // tolleranza sopra
 
-  Serial.print("Frequenza rilevata: ");
-  Serial.print(freq, 2);
-  Serial.print(" Hz → ");
+  //Serial.print("Frequenza rilevata: ");
+  //Serial.print(freq, 2);
+  //Serial.print(" Hz → ");
 
-  if (diff >= -toleranceBelow && diff <= toleranceAbove) {
-    Serial.print("CORRETTA! ");
-    digitalWrite(ledA, LOW);
-    digitalWrite(ledB, LOW);
-    digitalWrite(ledG, HIGH);
-  } else if (diff < -toleranceBelow) {
-    Serial.print("TROPPO BASSA ");
-    digitalWrite(ledA, LOW);
-    digitalWrite(ledB, HIGH);
-    digitalWrite(ledG, LOW);
-  } else {
-    Serial.print("TROPPO ALTA ");
-    digitalWrite(ledA, HIGH);
-    digitalWrite(ledB, LOW);
-    digitalWrite(ledG, LOW);
-  }
+  bool inTune = (diff >= -toleranceBelow && diff <= toleranceAbove);
 
-  Serial.print("(Nota: ");
-  Serial.print(noteName);
-  Serial.print(", attesa: ");
-  Serial.print(targetFreq, 2);
-  Serial.println(" Hz)");
+  // LED feedback
+  digitalWrite(ledA, diff < -toleranceBelow);
+  digitalWrite(ledB, diff > toleranceAbove);
+  digitalWrite(ledG, inTune);
+
+
+  //Serial.print("(Nota: ");
+  //Serial.print(noteName);
+  //Serial.print(", attesa: ");
+  //Serial.print(targetFreq, 2);
+  //Serial.println(" Hz)");
 }
 
 // TODO:
 /*
   1-Aggiungere la parte del metronomo
   2-Aggregare il tutto in modo da poter switchare tra le modalità
-  
 */

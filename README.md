@@ -16,5 +16,5 @@ L'accordatore ha incorporato un metronomo che, in base al tempo scelto (tempo di
 - Altoparlante (Passive Buzzer): Usato per la riproduzione nella nota corrente a cui si sta effettuando la comparazione (durante l'accordatura) e per riprodurre il battito del metronomo<br>
 - Pulsanti (x2)<br>
 - Led (2 rossi e 1 verde)<br>
-- Arduino Mega R3 (Scelto per la necessità di avere più pin di un Aruino Uno)<br>
+- Arduino Mega R3<br>
 - Membrane Switch: Usato per la scelta del tempo del metronomo<br>

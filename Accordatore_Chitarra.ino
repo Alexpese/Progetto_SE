@@ -2,9 +2,11 @@
 #include <LiquidCrystal.h>
 #include <Keypad.h>
 
+//Inizializzazione LCD
 // LiquidCrystal(rs, e, d4, d5, d6, d7)
 LiquidCrystal lcd(32, 30, 28, 26, 24, 22);
 
+//Inizializzazione Membrane Switch (Keypad)
 const byte ROWS = 4;
 const byte COLS = 4;
 char hexaKeys[ROWS][COLS] = {
@@ -17,35 +19,39 @@ byte rowPins[ROWS] = {10, 9, 8, 7};
 byte colPins[COLS] = {6, 5, 4, 3};
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-const int micPin = A0;
-const int samples = 512;
-const double samplingFrequency = 9000;  // Hz
-int audioBuffer[samples];
+//Microfono e campionamento
+const int micPin = A0; //Pin di lettura del microfono
+const int samples = 512; //Numero di campioni 
+const double samplingFrequency = 9000;  // Frequenza di campionamento (Hz), almeno di 2*f_max (Nyquist)
+int audioBuffer[samples]; //Dati del microfono
 unsigned int samplingPeriodUs;
-const int ledA = 50;
-const int ledB = 48;
-const int ledG = 52;
-const int butN = 2;
-const int bMod = 18;
-int targetNote = 0;
-const int buzPin = 44;
-int tempo = 60;
-int tdc[3] = {0, 6, 0};
-int i = 0;
+
+//Settaggio dei collegamenti ai pin
+const int ledA = 50; //Led che indica frequenza alta
+const int ledB = 48; //Led che indica frequenza bassa
+const int ledG = 52; //Led che indica frequenza adatta (nel range)
+const int butN = 2; //Pulsante per il cambio di nota
+const int bMod = 18; //Pulsante per il cambio di modalità
+int targetNote = 0; //Nota bersaglio
+const int buzPin = 44; //Pin dove viene collegato il buzzer
+int tempo = 60; //Tempo base per la modalità metronomo
+int tdc[3] = {0, 6, 0}; //Tempo base visto come array di interi
+int i = 0; 
 
 unsigned long lastBeat = 0; // Tempo dell'ultimo beep
 
-
-volatile int mod = 0;
+volatile int mod = 0; //Variabile che indica la modalità
 
 Bounce debouncer = Bounce(); //Crea un oggetto Bounce, per usare il debouncer
 Bounce d2 = Bounce();   //Altro debouncer
 
+//Creazione dell'oggetto Nota
 struct Nota {
   char* nome;
   double frequenza;
 };
 
+//Creazione array contenente le note e frequenze delle corde
 const Nota accStandard[] = {
   {"E2", 82.41},
   {"A2", 110.00},
@@ -86,11 +92,11 @@ void setup() {
 }
 
 void loop() {
-  d2.update();
+  d2.update(); //Controllo il cambio di modalità
   if (mod == 0) {
-    Accord();
+    Accord(); //Modalità Accordatore
   } else {
-    Metronome();
+    Metronome(); //Modalità Metronomo
   }
 }
 
@@ -141,7 +147,7 @@ void Accord() {
     double freq = samplingFrequency / bestLag;
 
     if (freq > 70 && freq < 400) {
-      checkNote(freq, accStandard[targetNote].nome, accStandard[targetNote].frequenza);
+      checkNote(freq, accStandard[targetNote].frequenza); // Chiamata della funzione che controlla la nota
     }
   }
 }
@@ -149,8 +155,9 @@ void Accord() {
 //Controllo del cambio di nota e eventuale aggiornamento del testo scritto sullo schermo LCD
 void checkButton() {
   if (debouncer.rose()) {
-    lcd.clear();
-    targetNote = (targetNote + 1) % 6;
+    lcd.clear(); //Pulizia dello schermo LCD
+    targetNote = (targetNote + 1) % 6; //Cambio della nota
+    //Print del cambio sullo schermo LCD
     lcd.print("Nota Selezionata");
     lcd.setCursor(0,1);
     lcd.print(accStandard[targetNote].nome);
@@ -158,7 +165,8 @@ void checkButton() {
   }
 }
 
-void checkNote(double freq, const char* noteName, double targetFreq) {
+//Funzione che controlla la frequenza, paragonandola ad un altra di riferimento (quelle dell'accordatura standard)
+void checkNote(double freq, double targetFreq) {
   double diff = freq - targetFreq;
 
   const double toleranceBelow = 8.0;   // tolleranza sotto
@@ -177,11 +185,13 @@ void Metronome() {
   char customKey = customKeypad.getKey();
   if (customKey && customKey >= '0' && customKey <= '9') {
     if (i < 3) {
-      tdc[i] = customKey - '0';
+      tdc[i] = customKey - '0'; //Aggiungo all'array la prima nota, trasformando l'ASCII in un intero
       i++;
     }
+
     if (i == 3) {
       tempo = tdc[0] * 100 + tdc[1] * 10 + tdc[2];  //Calcolo del tempo (BPM), da array di caratteri a intero
+      //Aggiornamento delle scritte sullo schermo LCD
       lcd.clear();
       lcd.print("Tempo:");
       lcd.setCursor(0,1);
